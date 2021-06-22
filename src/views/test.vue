@@ -13,7 +13,8 @@
                       @drag="handleDrag"
                       @resize="handleResize"
                       @scale="handleScale"
-                      @rotate="handleRotate">
+                      @rotate="handleRotate"
+                      @click="handleClick">
               <div>
               <img :src="barcode" :width="barcodeStats.dijitModuleWidth" :height="barcodeStats.dijitYuksekligi"
                    @click="getSelectedLabelId(101)"/></div>
@@ -24,7 +25,8 @@
                       @drag="handleDrag"
                       @resize="handleResize"
                       @scale="handleScale"
-                      @rotate="handleRotate">
+                      @rotate="handleRotate"
+                      @click="handleClick">
               <span @click="getSelectedLabelId(label.labelId)">{{ label.labelName }}</span>
             </Moveable>
             <div class="position-absolute bottom-0 end-0">
@@ -131,6 +133,10 @@ export default {
       this.sayfaGenisligi = newPos.width;
       this.sayfaYuksekligi = newPos.height;
     },
+    handleClick(obj){
+      console.log(obj);
+      obj.target.style.transform = obj.transform;
+    },
     handleDrag(newTransformedObj,) { // x - y
       if (this.selectedLabelId === 101) {
         this.barcodeStats.dijitXPozisyonu = newTransformedObj.left;
@@ -194,7 +200,32 @@ export default {
       this.labelId += 1;
     },
     getItems() {
+      let today = new Date();
+      let dd = today.getDate();
+      let mm = today.getMonth() + 1;
+      let yyyy = today.getFullYear();
+      if (dd < 10) {
+        dd = '0' + dd;
+      }
+      if (mm < 10) {
+        mm = '0' + mm;
+      }
+      const date = yyyy + '-' + mm + '-' + dd;
+      const time = today.getHours() + ":" + today.getMinutes();
+      const dateTime = date + ' ' + time;
+
+      var rtm = "sayfaGenisligi=" + this.sayfaGenisligi + "\n" +
+          "sayfaYüksekligi=" + this.sayfaGenisligi + "\n" +
+          "dijitXpozisyonu=" + this.barcodeStats.dijitXPozisyonu + "\n" +
+          "dijitYpozisyonu=" + this.barcodeStats.dijitYPozisyonu + "\n" +
+          "dijitYuksekligi=" + this.barcodeStats.dijitYuksekligi + "\n" +
+          "dijitModuleWidth=" + this.barcodeStats.dijitModuleWidth + "\n";
+      this.labels.forEach((label) => {
+        rtm += label.labelName + "=" + label.labelX + "|" + label.labelY + "|" + label.labelHeight + "|" + label.labelYatayOrDikey + "|" + label.labelNormalOrKalin + "\n";
+      });
+      rtm += "basimZamani=" + "Basım Zamanı:" + dateTime;
       console.log(this.labels);
+      console.log(rtm);
     },
     getSelectedLabelId(id) {
       this.selectedLabelId = id;

@@ -1,5 +1,5 @@
 {
-  "name": "barcode-design-project",
+  "name": "barcode",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,7 +9,11 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
-    "vue": "^2.6.11"
+    "v-movable": "^0.3.2",
+    "vue": "^2.6.11",
+    "vue-drag-resize": "^1.5.4",
+    "vue-draggable-resizable": "^2.3.0",
+    "vue-resizable": "^2.0.5"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
@@ -18,6 +22,8 @@
     "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
+    "file-saver": "^2.0.5",
+    "vue-router": "^3.5.1",
     "vue-template-compiler": "^2.6.11"
   },
   "eslintConfig": {

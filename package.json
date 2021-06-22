@@ -13,6 +13,8 @@
     "vue": "^2.6.11",
     "vue-drag-resize": "^1.5.4",
     "vue-draggable-resizable": "^2.3.0",
+    "vue-grid-layout": "^2.3.12",
+    "vue-moveable": "^1.8.11",
     "vue-resizable": "^2.0.5"
   },
   "devDependencies": {

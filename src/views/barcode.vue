@@ -28,17 +28,16 @@
                           :max-width="maxW" :max-height="maxH"
                           :min-width="minW" :min-height="minH"
                           :drag-selector="dragArea"
-                          @resize:move="labelDragResize" @drag:move="labelDragResize">
+                          @resize:move="labelDragResize" @drag:move="labelDragResize"
+                          :id="label.itemId" :ref="label.itemId">
               <div class="card draggable resizable" @click="accessSelectedItemId(label.labelId)">
-                <p>{{label.labelName}}</p>
+                <p>{{ label.labelName }}</p>
                 <p> X : {{ label.labelX }} - Y : {{ label.labelY }} </p>
                 <p> W : {{ label.labelWidth }} - H : {{ label.labelHeigth }}</p>
-                <p>{{label.labelNormalOrKalin}}</p>
-                <p>{{label.labelYatayOrDikey}}</p>
+                <p>{{ label.labelNormalOrKalin }}</p>
+                <p>{{ label.labelYatayOrDikey }}</p>
               </div>
-
             </VueResizable>
-
 
             <!--            <VueResizable v-for="item in items" :key="item.itemName"
                                       :width="item.itemWidth" :height="item.itemHeight"
@@ -103,8 +102,8 @@
                   Kalın
                 </label>
               </div>
-
             </div>
+          </div>
             <!--            <VueResizable :width="150" :height="150"
                                       :left="0" :top="0"
                                       :min-height="60" :min-width="130"
@@ -122,13 +121,12 @@
                             </div>
                           </div>
                         </VueResizable>-->
-          </div>
           <div>
             <input class="btn btn-primary mt-2" type="button" value="Ekle" @click="addItem()">
           </div>
           <div class="position-absolute bottom-0 end-0 me-2 mb-2">
             <button class="btn btn-primary me-3" @click="getItems()">Get Itemlist</button>
-            <button class="btn btn-primary me-3" @click="save()">Kaydet</button>
+            <!--            <button class="btn btn-primary me-3" @click="save()">Kaydet</button>-->
             <input class="btn btn-primary" type="button" value="Yazdır" @click="createText()">
           </div>
           <!--          </VueDragResize>-->
@@ -153,8 +151,8 @@ export default {
 
   data() {
     return {
+      turn: 0.5,
       barcode: barcodeimage,
-      items: [],
 
       sayfaGenisligi: 500,
       sayfaYuksekligi: 500,
@@ -191,6 +189,9 @@ export default {
   },
   watch: {},
   methods: {
+    isVisible() {
+      this.visibility = true;
+    },
     accessSelectedItemId(id) {
       this.selectedItemIdVal = id;
       console.log("item id: " + this.selectedItemIdVal);
@@ -204,16 +205,20 @@ export default {
     },
 
     labelDragResize(newPos) {
-      this.labels.forEach((label) => {
-        if(this.selectedItemIdVal === label.labelId){
-          label.labelWidth = newPos.width;
-          label.labelHeigth = newPos.height;
-          label.labelX = newPos.left;
-          label.labelY = newPos.top;
+      for (let i = 0; i < this.labels.length; i += 1) {
+        if (this.selectedItemIdVal === this.labels[i].labelId) {
+          this.labels[i].labelWidth = newPos.width;
+          this.labels[i].labelHeigth = newPos.height;
+          this.labels[i].labelX = newPos.left;
+          this.labels[i].labelY = newPos.top;
         }
-      })
+      }
     },
 
+    pageResize(newPos) {
+      this.sayfaGenisligi = newPos.width;
+      this.sayfaYuksekligi = newPos.height;
+    },
     /*dragAndResize(newPos) {
       for (let i = 0; i < this.items.length; i += 1) {
         if (this.items[i].itemId === this.selectedItemIdVal) {
@@ -226,22 +231,45 @@ export default {
       }
     },*/
 
-    pageResize(newPos) {
-      this.sayfaGenisligi = newPos.width;
-      this.sayfaYuksekligi = newPos.height;
-    },
     tempItemResize(newPos) {
       this.tempItemWidth = newPos.width;
       this.tempItemHeight = newPos.height;
     },
 
-    save() {
-      const pageInfo = {
-        sayfaGenisligi: this.sayfaGenisligi,
-        sayfaYuksekligi: this.sayfaYuksekligi,
-      };
-      localStorage.setItem('items', JSON.stringify(this.items));
-      localStorage.setItem('pageInfo', JSON.stringify(pageInfo));
+    // save() {
+    //   const pageInfo = {
+    //     sayfaGenisligi: this.sayfaGenisligi,
+    //     sayfaYuksekligi: this.sayfaYuksekligi,
+    //   };
+    //   localStorage.setItem('items', JSON.stringify(this.items));
+    //   localStorage.setItem('pageInfo', JSON.stringify(pageInfo));
+    // },
+    getItems() {
+      console.log(this.labels);
+    },
+
+    addItem() {
+      if (document.getElementById('yatayRadioDefault1').checked) {
+        this.tempLabelYatayOrDikey = document.getElementById('yatayRadioDefault1').value;
+      } else {
+        this.tempLabelYatayOrDikey = document.getElementById('dikeyRadioDefault2').value;
+      }
+      if (document.getElementById('normalRadioDefault3').checked) {
+        this.tempLabelNormalOrKalin = document.getElementById('normalRadioDefault3').value;
+      } else {
+        this.tempLabelNormalOrKalin = document.getElementById('kalınRadioDefault4').value;
+      }
+      this.labels.push({
+        labelId: this.labelId,
+        labelName: this.tempLabelName,
+        labelX: this.tempLabelXpos,
+        labelY: this.tempLabelYpos,
+        labelHeigth: this.tempLabelHeight,
+        labelWidth: this.tempLabelWidth,
+        labelYatayOrDikey: this.tempLabelYatayOrDikey,
+        labelNormalOrKalin: this.tempLabelNormalOrKalin,
+      })
+      this.labelId += 1;
     },
 
     createText() {
@@ -291,32 +319,6 @@ export default {
       // saveAs(blobArr, "info.txt");
     },
 
-    isVisible() {
-      this.visibility = true;
-    },
-
-    addItem() {
-      if (document.getElementById('yatayRadioDefault1').checked) {
-        this.tempLabelYatayOrDikey = document.getElementById('yatayRadioDefault1').value;
-      } else {
-        this.tempLabelYatayOrDikey = document.getElementById('dikeyRadioDefault2').value;
-      }
-      if (document.getElementById('normalRadioDefault3').checked) {
-        this.tempLabelNormalOrKalin = document.getElementById('normalRadioDefault3').value;
-      } else {
-        this.tempLabelNormalOrKalin = document.getElementById('kalınRadioDefault4').value;
-      }
-      this.labels.push({
-        labelId: 0,
-        labelName: this.tempLabelName,
-        labelX: this.tempLabelXpos,
-        labelY: this.tempLabelYpos,
-        labelHeigth: this.tempLabelHeight,
-        labelWidth: this.tempLabelWidth,
-        labelYatayOrDikey: this.tempLabelYatayOrDikey,
-        labelNormalOrKalin: this.tempLabelNormalOrKalin,
-      })
-    },
   }
 }
 </script>

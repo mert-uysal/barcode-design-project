@@ -46,7 +46,7 @@ export default {
           itemXpos: 0,
           itemYpos: 0,
           itemId: 1,
-          itemName: "new component",
+          itemName: "new componentt",
         }
       ],
       event: "",

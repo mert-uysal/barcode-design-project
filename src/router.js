@@ -6,12 +6,12 @@ Vue.use(VueRouter);
 const routes = [
     {
         path: "/",
-        name: "Anasayfa",
+        name: "Home",
         component: () => import('./views/Home.vue'),
     },
     {
         path: "/about",
-        name: "Hakkında",
+        name: "About",
         component: () => import('./views/About.vue'),
     },
     {
@@ -20,15 +20,10 @@ const routes = [
         component: () => import('./components/HelloWorld.vue'),
     },
     {
-        path: "/barcode",
-        name: "Barkod",
-        component: () => import('./views/barcode.vue'),
+        path: "/designBarcode",
+        name: "Design-Barcode",
+        component: () => import('./views/Design-Barcode.vue'),
     },
-    {
-        path: "/test",
-        name: "test",
-        component: () => import('./views/test.vue'),
-    }
 ];
 
 export const router = new VueRouter({

@@ -1,13 +1,13 @@
 <template>
-  <div class="container-fluid">
+  <div class="page container-fluid">
     <div class="row">
       <div class="col">
         <div class="position-relative">
-          <VueDragResize class="pageClass"
+          <VueDragResize class="page"
                          :w="sayfaGenisligi" :h="sayfaYuksekligi"
                          :minw="300" :minh="300"
                          :parentW="700" :parentH="620" :parentLimitation="true"
-                         @resizing="pageResize" :isDraggable="false">
+                         @resizing="pageResize" :isDraggable="false" style="border: 1px solid red;">
             <Moveable class="movable"
                       v-bind="movable"
                       @drag="handleDrag"
@@ -15,31 +15,46 @@
                       @scale="handleScale"
                       @rotate="handleRotate"
                       @click="handleClick">
-              <div>
-              <img :src="barcode" :width="barcodeStats.dijitModuleWidth" :height="barcodeStats.dijitYuksekligi"
-                   @click="getSelectedLabelId(101)"/></div>
+              <div style="position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);" class="mt-2" @click="getSelectedLabelId(101)">
+                <img v-if="isBarcode" :src="barcode" :width="barcodeStats.dijitModuleWidth"
+                     :height="barcodeStats.dijitYuksekligi"/>
+                <img v-if="!isBarcode" :src="qrcode" :width="barcodeStats.dijitModuleWidth"
+                     :height="barcodeStats.dijitYuksekligi"/>
+              </div>
             </Moveable>
-            <Moveable class="movableLabels"
-                      v-for="label in labels" :key="label.labelId"
-                      v-bind="movable"
-                      @drag="handleDrag"
-                      @resize="handleResize"
-                      @scale="handleScale"
-                      @rotate="handleRotate"
-                      @click="handleClick">
-              <span @click="getSelectedLabelId(label.labelId)">{{ label.labelName }}</span>
-            </Moveable>
-            <div class="position-absolute bottom-0 end-0">
-              <p>page W : {{ sayfaGenisligi }} - page H : {{ sayfaYuksekligi }}</p>
+            <div v-for="label in labels" :key="label.labelId"
+                 class="container" :width="label.labelWidth" :height="label.labelHeight">
+              <Moveable class="movable"
+                        v-bind:class="{vertical90: isVertical90, vertical270: isVertical270,
+                        boldFont: !isNormal, normalFont: isNormal}"
+                        v-bind="movable"
+                        @drag="handleDrag"
+                        @resize="handleResize"
+                        @scale="handleScale"
+                        @rotate="handleRotate"
+                        @click="handleClick">
+                <div class="mt-1" @click="getSelectedLabelId(label.labelId)"
+                     style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                  <div>{{ label.labelName }}</div>
+                  <div v-bind:class="{boldFont: !isNormal, normalFont: isNormal}">{{ label.labelContent }}</div>
+                </div>
+              </Moveable>
+            </div>
+            <div class="position-absolute bottom-0 start-50 translate-middle-x">
+              <p>barcode label W : {{ sayfaGenisligi }} - barcode label H : {{ sayfaYuksekligi }}</p>
             </div>
           </VueDragResize>
         </div>
       </div>
       <div class="col">
-        <div class="container position-relative">
+        <div class="container position-relative" style="border: 1px solid #dddddd;">
           <div class="card-2 ms-4">
             <div>
-              <input class="form-control" type="text" placeholder="Label Name" v-model="tempLabelName">
+              <input class="form-control mb-2 mt-2" type="text" placeholder="Label Name" v-model="tempLabelName">
+              <input class="form-control" type="text" placeholder="Label Content" v-model="tempLabelContent">
               <div>
                 <input value="Yatay" class="form-check-input" type="radio" name="flexRadioDefault"
                        id="yatayRadioDefault1">
@@ -47,9 +62,14 @@
                   Yatay
                 </label>
                 <input value="Dikey" class="form-check-input ms-1" type="radio" name="flexRadioDefault"
-                       id="dikeyRadioDefault2" checked>
-                <label class="form-check-label" for="dikeyRadioDefault2">
-                  Dikey
+                       id="dikeyRadioDefault90" checked>
+                <label class="form-check-label" for="dikeyRadioDefault90">
+                  Dikey 90°
+                </label>
+                <input value="Dikey" class="form-check-input ms-1" type="radio" name="flexRadioDefault"
+                       id="dikeyRadioDefault270" checked>
+                <label class="form-check-label" for="dikeyRadioDefault270">
+                  Dikey 270°
                 </label>
               </div>
               <div>
@@ -65,16 +85,17 @@
                 </label>
               </div>
             </div>
-            <input class="btn btn-primary mt-2" type="button" value="Ekle" @click="addLabel()">
+            <input class="btn btn-primary mt-2 mb-2" type="button" value="Ekle" @click="addLabel()">
+            <div class="position-absolute bottom-0 end-1 me-2 mb-2">
+              <button class="btn btn-primary me-3" @click="changeDigitType()">Use Barcode/QR</button>
+            </div>
             <div class="position-absolute bottom-0 end-0 me-2 mb-2">
               <button class="btn btn-primary me-3" @click="getItems()">Get Itemlist</button>
-              <!--            <button class="btn btn-primary me-3" @click="save()">Kaydet</button>-->
               <input class="btn btn-primary" type="button" value="Yazdır" @click="createText()">
             </div>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </template>
@@ -83,10 +104,11 @@
 import Moveable from "vue-moveable";
 import VueDragResize from 'vue-drag-resize';
 import barcodeimage from "../assets/barcode.png";
+import qrcode from "../assets/qrcode.png";
 import {saveAs} from 'file-saver';
 
 export default {
-  name: 'Test',
+  name: 'Design-Barcode',
   components: {
     Moveable,
     VueDragResize,
@@ -95,11 +117,12 @@ export default {
   data() {
     return {
       barcode: barcodeimage,
+      qrcode: qrcode,
       sayfaGenisligi: 500,
       sayfaYuksekligi: 500,
       movable: {
         draggable: true,
-        scalable: true,
+        scalable: false,
         resizable: true,
         throttleScale: 0.01,
         rotatable: true,
@@ -110,56 +133,79 @@ export default {
       },
       barcodeId: 101,
       barcodeStats: {
+        dijitType: "Barcode",
         dijitXPozisyonu: 0,
         dijitYPozisyonu: 0,
         dijitYuksekligi: 200,
         dijitModuleWidth: 300,
       },
+      tempDigitType: "",
       selectedLabelId: 999,
       labels: [],
       labelId: 0,
-      tempLabelWidth: 50,
-      tempLabelHeight: 500,
+      tempLabelWidth: 100,
+      tempLabelHeight: 100,
       tempLabelName: "",
+      tempLabelContent: "",
       tempLabelXpos: 0,
       tempLabelYpos: 0,
-      tempLabelYatayOrDikey: "",
-      tempLabelNormalOrKalin: "",
+      tempLabelYatayOrDikey: "undefined",
+      tempLabelNormalOrKalin: "undefined",
+      isBarcode: true,
+      isVertical90: true,
+      isVertical270: true,
+      isNormal: true,
     }
   },
-
+  watch: {
+    watchSelectedDigitType() {
+      if (this.isBarcode) {
+        this.barcodeStats.dijitType = "Barcode";
+      }
+      else {
+        this.barcodeStats.dijitType = "QRCode";
+      }
+    }
+  },
   methods: {
     pageResize(newPos) {
       this.sayfaGenisligi = newPos.width;
       this.sayfaYuksekligi = newPos.height;
     },
-    handleClick(obj){
-      console.log(obj);
+    changeDigitType(){
+      this.isBarcode = !this.isBarcode;
+      if (this.isBarcode) {
+        this.barcodeStats.dijitType = "Barcode";
+      }
+      else {
+        this.barcodeStats.dijitType = "QRCode";
+      }
+    },
+    handleClick(obj) {
       obj.target.style.transform = obj.transform;
     },
     handleDrag(newTransformedObj,) { // x - y
       if (this.selectedLabelId === 101) {
         this.barcodeStats.dijitXPozisyonu = newTransformedObj.left;
         this.barcodeStats.dijitYPozisyonu = newTransformedObj.top;
-      }
-      else {
-        for(let i=0;i<this.labels.length;i+=1){
-          if(this.selectedLabelId === this.labels[i].labelId){
+      } else {
+        for (let i = 0; i < this.labels.length; i += 1) {
+          if (this.selectedLabelId === this.labels[i].labelId) {
             this.labels[i].labelX = newTransformedObj.left;
             this.labels[i].labelY = newTransformedObj.top;
           }
         }
       }
+      console.log(this.barcodeStats);
       newTransformedObj.target.style.transform = newTransformedObj.transform;
     },
     handleResize(newTransformedObj) { //w - h
       if (this.selectedLabelId === 101) {
         this.barcodeStats.dijitModuleWidth = newTransformedObj.width;
         this.barcodeStats.dijitYuksekligi = newTransformedObj.height;
-      }
-      else {
-        for(let i=0;i<this.labels.length;i+=1){
-          if(this.selectedLabelId === this.labels[i].labelId){
+      } else {
+        for (let i = 0; i < this.labels.length; i += 1) {
+          if (this.selectedLabelId === this.labels[i].labelId) {
             this.labels[i].labelWidth = newTransformedObj.width;
             this.labels[i].labelHeight = newTransformedObj.height;
           }
@@ -190,6 +236,7 @@ export default {
       this.labels.push({
         labelId: this.labelId,
         labelName: this.tempLabelName,
+        labelContent: this.tempLabelContent,
         labelX: this.tempLabelXpos,
         labelY: this.tempLabelYpos,
         labelHeight: this.tempLabelHeight,
@@ -198,6 +245,29 @@ export default {
         labelNormalOrKalin: this.tempLabelNormalOrKalin,
       })
       this.labelId += 1;
+      this.checkLabelProperties();
+    },
+
+    checkLabelProperties() {
+      if(this.tempLabelYatayOrDikey === "D") {
+        if(document.getElementById('dikeyRadioDefault90').checked){
+          this.isVertical90 = true;
+          this.isVertical270 = false;
+        }
+        else{
+          this.isVertical270 = true;
+          this.isVertical90 = false;
+        }
+      } else {
+        this.isVertical90 = false;
+        this.isVertical270 = false;
+      }
+      if(document.getElementById('normalRadioDefault3').checked) {
+        this.isNormal = true
+      }
+      else{
+        this.isNormal = false;
+      }
     },
     getItems() {
       let today = new Date();
@@ -216,6 +286,7 @@ export default {
 
       var rtm = "sayfaGenisligi=" + this.sayfaGenisligi + "\n" +
           "sayfaYüksekligi=" + this.sayfaGenisligi + "\n" +
+          "dijitType=" + this.barcode.dijitType + "\n" +
           "dijitXpozisyonu=" + this.barcodeStats.dijitXPozisyonu + "\n" +
           "dijitYpozisyonu=" + this.barcodeStats.dijitYPozisyonu + "\n" +
           "dijitYuksekligi=" + this.barcodeStats.dijitYuksekligi + "\n" +
@@ -248,6 +319,7 @@ export default {
 
       var rtm = "sayfaGenisligi=" + this.sayfaGenisligi + "\n" +
           "sayfaYüksekligi=" + this.sayfaGenisligi + "\n" +
+          "dijitType=" + this.barcode.dijitType + "\n" +
           "dijitXpozisyonu=" + this.barcodeStats.dijitXPozisyonu + "\n" +
           "dijitYpozisyonu=" + this.barcodeStats.dijitYPozisyonu + "\n" +
           "dijitYuksekligi=" + this.barcodeStats.dijitYuksekligi + "\n" +
@@ -265,40 +337,53 @@ export default {
 </script>
 
 <style scoped>
-.container {
-  border: 1px solid #dddddd;
-  width: 654px;
-  height: 485px;
+/*
+html,
+body {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  letter-spacing: 1px;
+}
+*/
+
+.page {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  /*box-sizing: border-box;*/
 }
 
-.pageClass {
-  border: 1px solid red;
+.container {
+  /*position: relative;*/
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .movable {
+  width: 50%;
+  height: 50%;
+  margin-right: auto;
+  margin-left: auto;
   position: relative;
-  width: 300px;
-  height: 200px;
+  display: block;
+  /*position: absolute;*/
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.movableLabels {
-  font-family: "Roboto", sans-serif;
-  width: 150px;
-  height: 150px;
-  font-size: 40px;
-  margin: auto;
-  text-align: center;
-  /*position: relative;
-  text-align: center;
-  font-weight: 100;
-  letter-spacing: 1px;*/
+.boldFont{
+  font-weight: bold;
 }
-
-.draggable {
-  cursor: crosshair;
+.normalFont{
+  font-weight: normal;
 }
-
-.resizable {
-  border: 1px solid #003eff;
+.vertical270{
+  transform: rotate(270deg);
+}
+.vertical90{
+  transform: rotate(90deg);
 }
 </style>

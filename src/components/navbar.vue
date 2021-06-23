@@ -1,15 +1,20 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-      <a class="navbar-brand" href="/ ">Hello world</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#navbarSupportedContent"
+              aria-controls="navbarSupportedContent" aria-expanded="false"
+              aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <router-link to="barcode">Barcode</router-link>
-            <a class="nav-link active" aria-current="page" href="#">barcode</a>
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0"> <!--v-if="currentUser"-->
+          <li class="nav-item" v-for="routes in links" :key="routes.id">
+            <router-link
+                :class="{ active: $route.path === routes.page }"
+                class="nav-link"
+                :to="routes.page">{{ routes.text }}
+            </router-link>
           </li>
         </ul>
       </div>
@@ -19,10 +24,33 @@
 
 <script>
 export default {
-  name: "navbar"
+  name: "navbar",
+  data() {
+    return {
+      links: [
+        {
+          id: 0,
+          text: 'Home',
+          page: '/',
+        },
+        {
+          id: 1,
+          text: 'About',
+          page: '/about',
+        },
+        {
+          id: 2,
+          text: 'Barcode Design',
+          page: '/designBarcode',
+        },
+      ],
+    };
+  },
 }
 </script>
 
 <style scoped>
-
+.navbar{
+  padding-right: 0;
+}
 </style>

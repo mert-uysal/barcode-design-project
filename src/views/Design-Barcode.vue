@@ -34,10 +34,10 @@
                       class="movable"
                       v-bind:class="{vertical90: label.isLabelVertical90, vertical270: label.isLabelVertical270}"
                       v-bind="movable"
-                      @dragStart="handleDragStart(101)"
+                      @dragStart="handleDragStart(label.labelId)"
                       @drag="handleDrag"
                       @dragEnd="handleDragEnd"
-                      @resizeStart="handleResizeStart(101)"
+                      @resizeStart="handleResizeStart(label.labelId)"
                       @resize="handleResize"
                       @rotate="handleRotate"
                       v-bind:style="{width: label.labelWidth + 'px', height: label.labelHeight + 'px'}">

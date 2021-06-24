@@ -30,7 +30,7 @@
                         @resize="handleResize"
                         @scale="handleScale"
                         @rotate="handleRotate"
-                        @click="handleClick"
+                        @click="handleClick; getSelectedLabelId(label.labelId)"
                        >
                 <div class="position-relative mt-1" @click="getSelectedLabelId(label.labelId)"
                      style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
@@ -283,7 +283,7 @@ export default {
 
       var rtm = "sayfaGenisligi=" + this.sayfaGenisligi + "\n" +
           "sayfaYüksekligi=" + this.sayfaGenisligi + "\n" +
-          "dijitType=" + this.barcode.dijitType + "\n" +
+          "dijitType=" + this.barcodeStats.dijitType + "\n" +
           "dijitXpozisyonu=" + this.barcodeStats.dijitXPozisyonu + "\n" +
           "dijitYpozisyonu=" + this.barcodeStats.dijitYPozisyonu + "\n" +
           "dijitYuksekligi=" + this.barcodeStats.dijitYuksekligi + "\n" +
@@ -316,7 +316,7 @@ export default {
 
       var rtm = "sayfaGenisligi=" + this.sayfaGenisligi + "\n" +
           "sayfaYüksekligi=" + this.sayfaGenisligi + "\n" +
-          "dijitType=" + this.barcode.dijitType + "\n" +
+          "dijitType=" + this.barcodeStats.dijitType + "\n" +
           "dijitXpozisyonu=" + this.barcodeStats.dijitXPozisyonu + "\n" +
           "dijitYpozisyonu=" + this.barcodeStats.dijitYPozisyonu + "\n" +
           "dijitYuksekligi=" + this.barcodeStats.dijitYuksekligi + "\n" +

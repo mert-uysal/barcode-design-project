@@ -30,8 +30,10 @@
                         @resize="handleResize"
                         @scale="handleScale"
                         @rotate="handleRotate"
-                        @click="handleClick">
-                <div class="position-relative mt-1" @click="getSelectedLabelId(label.labelId)">
+                        @click="handleClick"
+                       >
+                <div class="position-relative mt-1" @click="getSelectedLabelId(label.labelId)"
+                     style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
                   <div>{{ label.labelName }}</div>
                   <div v-bind:class="{boldFont: !isNormal, normalFont: isNormal}">{{ label.labelContent }}</div>
                   <a href="#" class="action-button text-danger" @click.prevent="deleteLabel(labelIndex)">
@@ -225,7 +227,7 @@ export default {
       if (document.getElementById('normalRadioDefault3').checked) {
         this.tempLabelNormalOrKalin = "N";
       } else {
-        this.tempLabelNormalOrKalin = "Y";
+        this.tempLabelNormalOrKalin = "K";
       }
       this.labels.push({
         labelId: this.labelId,

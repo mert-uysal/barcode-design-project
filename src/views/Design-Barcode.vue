@@ -3,11 +3,11 @@
     <div class="row">
       <div class="col">
         <div class="position-relative">
-          <VueDragResize class="page"
+          <VueDragResize class="pageClass"
                          :w="sayfaGenisligi" :h="sayfaYuksekligi"
                          :minw="300" :minh="300"
                          :parentW="700" :parentH="620" :parentLimitation="true"
-                         @resizing="pageResize" :isDraggable="false" style="border: 1px solid red;">
+                         @resizing="pageResize" :isDraggable="false" style="border: 1px solid red; position: absolute">
             <Moveable class="movable"
                       v-bind="movable"
                       @drag="handleDrag"
@@ -15,18 +15,13 @@
                       @scale="handleScale"
                       @rotate="handleRotate"
                       @click="handleClick">
-              <div style="position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);" class="mt-2" @click="getSelectedLabelId(101)">
                 <img v-if="isBarcode" :src="barcode" :width="barcodeStats.dijitModuleWidth"
-                     :height="barcodeStats.dijitYuksekligi"/>
+                     :height="barcodeStats.dijitYuksekligi" @click="getSelectedLabelId(101)"/>
                 <img v-if="!isBarcode" :src="qrcode" :width="barcodeStats.dijitModuleWidth"
-                     :height="barcodeStats.dijitYuksekligi"/>
-              </div>
+                     :height="barcodeStats.dijitYuksekligi" @click="getSelectedLabelId(101)"/>
             </Moveable>
-            <div v-for="label in labels" :key="label.labelId"
-                 class="container" :width="label.labelWidth" :height="label.labelHeight">
+            <div v-for="(label, labelIndex) in labels" :key="label.label"
+                 :width="label.labelWidth" :height="label.labelHeight" class="movable"  v-bind:id="`${label.labelId}`">
               <Moveable class="movable"
                         v-bind:class="{vertical90: isVertical90, vertical270: isVertical270,
                         boldFont: !isNormal, normalFont: isNormal}"
@@ -36,14 +31,16 @@
                         @scale="handleScale"
                         @rotate="handleRotate"
                         @click="handleClick">
-                <div class="mt-1" @click="getSelectedLabelId(label.labelId)"
-                     style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                <div class="position-relative mt-1" @click="getSelectedLabelId(label.labelId)">
                   <div>{{ label.labelName }}</div>
                   <div v-bind:class="{boldFont: !isNormal, normalFont: isNormal}">{{ label.labelContent }}</div>
+                  <a href="#" class="action-button text-danger" @click.prevent="deleteLabel(labelIndex)">
+                    <span class="fa fa-trash"></span>
+                  </a>
                 </div>
               </Moveable>
             </div>
-            <div class="position-absolute bottom-0 start-50 translate-middle-x">
+            <div class="position-absolute bottom-0 end-0">
               <p>barcode label W : {{ sayfaGenisligi }} - barcode label H : {{ sayfaYuksekligi }}</p>
             </div>
           </VueDragResize>
@@ -142,7 +139,7 @@ export default {
       tempDigitType: "",
       selectedLabelId: 999,
       labels: [],
-      labelId: 0,
+      labelId: 1,
       tempLabelWidth: 100,
       tempLabelHeight: 100,
       tempLabelName: "",
@@ -161,8 +158,7 @@ export default {
     watchSelectedDigitType() {
       if (this.isBarcode) {
         this.barcodeStats.dijitType = "Barcode";
-      }
-      else {
+      } else {
         this.barcodeStats.dijitType = "QRCode";
       }
     }
@@ -172,12 +168,11 @@ export default {
       this.sayfaGenisligi = newPos.width;
       this.sayfaYuksekligi = newPos.height;
     },
-    changeDigitType(){
+    changeDigitType() {
       this.isBarcode = !this.isBarcode;
       if (this.isBarcode) {
         this.barcodeStats.dijitType = "Barcode";
-      }
-      else {
+      } else {
         this.barcodeStats.dijitType = "QRCode";
       }
     },
@@ -196,7 +191,6 @@ export default {
           }
         }
       }
-      console.log(this.barcodeStats);
       newTransformedObj.target.style.transform = newTransformedObj.transform;
     },
     handleResize(newTransformedObj) { //w - h
@@ -247,14 +241,16 @@ export default {
       this.labelId += 1;
       this.checkLabelProperties();
     },
+    deleteLabel(labelIndex) {
+      this.labels.splice(labelIndex,1);
+    },
 
     checkLabelProperties() {
-      if(this.tempLabelYatayOrDikey === "D") {
-        if(document.getElementById('dikeyRadioDefault90').checked){
+      if (this.tempLabelYatayOrDikey === "D") {
+        if (document.getElementById('dikeyRadioDefault90').checked) {
           this.isVertical90 = true;
           this.isVertical270 = false;
-        }
-        else{
+        } else {
           this.isVertical270 = true;
           this.isVertical90 = false;
         }
@@ -262,10 +258,9 @@ export default {
         this.isVertical90 = false;
         this.isVertical270 = false;
       }
-      if(document.getElementById('normalRadioDefault3').checked) {
+      if (document.getElementById('normalRadioDefault3').checked) {
         this.isNormal = true
-      }
-      else{
+      } else {
         this.isNormal = false;
       }
     },
@@ -367,23 +362,24 @@ body {
   height: 50%;
   margin-right: auto;
   margin-left: auto;
-  position: relative;
+  /*position: relative;*/
   display: block;
-  /*position: absolute;*/
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
+  position: absolute;
 }
 
-.boldFont{
+.boldFont {
   font-weight: bold;
 }
-.normalFont{
+
+.normalFont {
   font-weight: normal;
 }
-.vertical270{
+
+.vertical270 {
   transform: rotate(270deg);
 }
-.vertical90{
+
+.vertical90 {
   transform: rotate(90deg);
 }
 </style>

@@ -26,33 +26,59 @@
                 <p> W : {{ dijitModuleWidth }} - H : {{ dijitYuksekligi }}</p>
               </div>
             </VueResizable>
-            <VueResizable v-for="(label, labelIndex) in labels" :key="label.labelId"
-                          class="vueDragResize resizable"
-                          v-bind:class="{vertical90: label.isLabelVertical90, vertical270: label.isLabelVertical270}"
-                          :width="label.labelWidth" :height="label.labelHeight"
-                          :left="label.labelX" :top="label.labelY"
-                          :max-width="maxW" :max-height="maxH"
-                          :min-width="minW" :min-height="minH"
-                          :drag-selector="dragArea"
-                          :fit-parent="true"
-                          @resize:start="labelDragResizeStart(label.labelId)"
-                          @resize:move="labelDragResizeOnMove"
-                          @resize:end="labelDragResizeEnd"
-                          @drag:start="labelDragResizeStart(label.labelId)"
-                          @drag:move="labelDragResizeOnMove"
-                          @drag:end="labelDragResizeEnd">
-              <div class="draggable position-relative"
+            <VueDragResize v-for="(label, labelIndex) in labels" :key="label.labelId"
+                           class="vueDragResize resizable"
+                           v-bind:class="{vertical90: label.isLabelVertical90, vertical270: label.isLabelVertical270}"
+                           :w="label.labelWidth" :h="label.labelHeight"
+                           :x="label.labelX" :y="label.labelY"
+                           :minw="minW" :minh="minH"
+                           :parentLimitation="true"
+                           v-on:resizing="labelDragResizeStart(label.labelId)"
+                           v-on:resizestop="labelDragResizeOnMove"
+                           v-on:dragging="labelDragResizeStart(label.labelId)"
+                           v-on:dragstop="labelDragResizeOnMove"
+                           :isActive="true">
+              <div class="position-relative"
                    style="border: 1px solid #e00d0d;"
                    v-bind:style="{width: label.labelWidth + 'px', height: label.labelHeight + 'px'}">
                 <span v-bind:class="{boldFont: !label.isLabelNormal, normalFont: label.isLabelNormal}">
                   {{ label.labelName }}<br>{{ label.labelContent }}
                 </span>
+                W : {{ label.labelWidth }} - H : {{ label.labelHeight }}<br>
+                X : {{ label.labelX }} - Y : {{ label.labelY }}
                 <a href="#" class="action-button text-danger position-absolute bottom-0 start-0"
                    @click.prevent="deleteLabel(labelIndex)">
                   <span class="fa fa-trash"></span>
                 </a>
               </div>
-            </VueResizable>
+            </VueDragResize>
+            <!--            <VueResizable v-for="(label, labelIndex) in labels" :key="label.labelId"-->
+            <!--                          class="vueDragResize resizable"-->
+            <!--                          v-bind:class="{vertical90: label.isLabelVertical90, vertical270: label.isLabelVertical270}"-->
+            <!--                          :width="label.labelWidth" :height="label.labelHeight"-->
+            <!--                          :left="label.labelX" :top="label.labelY"-->
+            <!--                          :max-width="maxW" :max-height="maxH"-->
+            <!--                          :min-width="minW" :min-height="minH"-->
+            <!--                          :drag-selector="dragArea"-->
+            <!--                          :fit-parent="true"-->
+            <!--                          @resize:start="labelDragResizeStart(label.labelId)"-->
+            <!--                          @resize:move="labelDragResizeOnMove"-->
+            <!--                          @resize:end="labelDragResizeEnd"-->
+            <!--                          @drag:start="labelDragResizeStart(label.labelId)"-->
+            <!--                          @drag:move="labelDragResizeOnMove"-->
+            <!--                          @drag:end="labelDragResizeEnd">-->
+            <!--              <div class="draggable position-relative"-->
+            <!--                   style="border: 1px solid #e00d0d;"-->
+            <!--                   v-bind:style="{width: label.labelWidth + 'px', height: label.labelHeight + 'px'}">-->
+            <!--                <span v-bind:class="{boldFont: !label.isLabelNormal, normalFont: label.isLabelNormal}">-->
+            <!--                  {{ label.labelName }}<br>{{ label.labelContent }}-->
+            <!--                </span>-->
+            <!--                <a href="#" class="action-button text-danger position-absolute bottom-0 start-0"-->
+            <!--                   @click.prevent="deleteLabel(labelIndex)">-->
+            <!--                  <span class="fa fa-trash"></span>-->
+            <!--                </a>-->
+            <!--              </div>-->
+            <!--            </VueResizable>-->
             <div class="position-absolute bottom-0 end-0">
               <p>page W : {{ sayfaGenisligi }} - page H : {{ sayfaYuksekligi }}</p>
             </div>

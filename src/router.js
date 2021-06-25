@@ -24,6 +24,11 @@ const routes = [
         name: "Design-Barcode",
         component: () => import('./views/Design-Barcode.vue'),
     },
+    {
+        path: "/testDesign",
+        name: "test",
+        component: () => import('./views/test.vue'),
+    },
 ];
 
 export const router = new VueRouter({

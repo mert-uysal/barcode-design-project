@@ -43,6 +43,11 @@ export default {
           text: 'Barcode Design',
           page: '/designBarcode',
         },
+        {
+          id: 2,
+          text: 'Test Design',
+          page: '/testDesign',
+        },
       ],
     };
   },

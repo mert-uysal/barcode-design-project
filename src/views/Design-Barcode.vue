@@ -2,7 +2,7 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col">
-        <div class="position-relative">
+        <div class="container-fluid position-relative">
           <VueDragResize class="pageClass"
                          :w="sayfaGenisligi" :h="sayfaYuksekligi"
                          :minw="300" :minh="300"
@@ -41,16 +41,34 @@
                       @resize="handleResize"
                       @rotate="handleRotate"
                       v-bind:style="{width: label.labelWidth + 'px', height: label.labelHeight + 'px'}">
-              <div style="border: 1px solid #e00d0d;"
+              <div class="position-relative"
+                   style="border: 1px solid #e00d0d;"
                    v-bind:style="{width: label.labelWidth + 'px', height: label.labelHeight + 'px'}">
                 <span v-bind:class="{boldFont: !label.isLabelNormal, normalFont: label.isLabelNormal}">
-                  {{ label.labelName }}
+                  {{ label.labelName }}<br>{{ label.labelContent }}
                 </span>
-                <span>{{ label.labelContent }}</span>
-                <a href="#" class="action-button text-danger position-absolute bottom-0"
-                   @click.prevent="deleteLabel(labelIndex)">
-                  <span class="fa fa-trash"></span>
-                </a>
+                <div class="container position-absolute bottom-0">
+                  <div class="row">
+                    <div class="col">
+                      <a href="#" class="action-button text-danger position-absolute start-0"
+                         @click.prevent="deleteLabel(labelIndex)">
+                        <i class="fa fa-trash"></i>
+                      </a>
+                    </div>
+                    <div class="col">
+                      <a href="#" class="btn-outline-secondary" @click="changeFont(labelIndex)"
+                         v-bind:class="{active: !label.isLabelNormal}">
+                        <i class="fas fa-bold"></i>
+                      </a>
+                    </div>
+                    <div class="col">
+                      <a href="#" class="position-absolute end-0"
+                         @click="rotate(labelIndex)">
+                        <i class="fas fa-redo"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
               </div>
             </Moveable>
             <div class="position-absolute bottom-0 end-0">
@@ -155,7 +173,7 @@ export default {
         dijitYuksekligi: 200,
         dijitModuleWidth: 300,
       },
-      tempDigitType: "",
+
       selectedLabelId: 999,
       labels: [],
       labelId: 1,
@@ -168,18 +186,9 @@ export default {
       tempLabelYatayOrDikey: "undefined",
       tempLabelNormalOrKalin: "undefined",
       isBarcode: true,
-      isVertical90: true,
-      isVertical270: true,
       isNormal: true,
-    }
-  },
-  watch: {
-    watchSelectedDigitType() {
-      if (this.isBarcode) {
-        this.barcodeStats.dijitType = "Barcode";
-      } else {
-        this.barcodeStats.dijitType = "QRCode";
-      }
+      isVertical90: true,
+      isVertical270: false,
     }
   },
   methods: {
@@ -217,8 +226,6 @@ export default {
           }
         }
       }
-      console.log(obj.lastEvent.left);
-      console.log(obj.lastEvent.top);
     },
     handleResizeStart(id) {
       this.selectedLabelId = id;
@@ -241,10 +248,10 @@ export default {
     handleRotate(newTransformedObj) {
       newTransformedObj.target.style.transform = newTransformedObj.transform;
     },
-    // handleScale(newTransformedObj) {
-    //   console.log(newTransformedObj)
-    //   newTransformedObj.target.style.transform = newTransformedObj.transform;
-    // },
+    handleScale(newTransformedObj) {
+      console.log(newTransformedObj)
+      newTransformedObj.target.style.transform = newTransformedObj.transform;
+    },
 
     addLabel() {
       if (document.getElementById('yatayRadioDefault1').checked) {
@@ -281,11 +288,35 @@ export default {
         isLabelNormal: this.isNormal,
         isLabelVertical90: this.isVertical90,
         isLabelVertical270: this.isVertical270,
+        labelRotateCounter: 0,
       });
       this.labelId += 1;
     },
     deleteLabel(labelIndex) {
       this.labels.splice(labelIndex, 1);
+    },
+    changeFont(labelIndex) {
+      this.labels[labelIndex].isLabelNormal = !this.labels[labelIndex].isLabelNormal;
+    },
+    rotate(labelIndex) {
+      console.log(this.labels[labelIndex].labelName);
+      if (this.labels[labelIndex].labelRotateCounter === 0) { // horizontal
+        this.labels[labelIndex].isLabelVertical90 = false;
+        this.labels[labelIndex].isLabelVertical270 = false;
+        this.labels[labelIndex].labelYatayOrDikey = "Y";
+        this.labels[labelIndex].labelRotateCounter += 1;
+      } else if (this.labels[labelIndex].labelRotateCounter === 1) { //90
+        this.labels[labelIndex].isLabelVertical90 = true;
+        this.labels[labelIndex].isLabelVertical270 = false;
+        this.labels[labelIndex].labelYatayOrDikey = "D";
+        this.labels[labelIndex].labelRotateCounter += 1;
+      } else { //270
+        this.labels[labelIndex].isLabelVertical90 = false;
+        this.labels[labelIndex].isLabelVertical270 = true;
+        this.labels[labelIndex].labelYatayOrDikey = "D";
+        this.labels[labelIndex].labelRotateCounter = 0;
+      }
+      console.log(this.labels[labelIndex].labelContent);
     },
 
     createText() {
@@ -352,33 +383,7 @@ export default {
 }
 </script>
 
-<style>
-
-/*
-html,
-body {
-  position: relative;
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  letter-spacing: 1px;
-}
-
-
-.page {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-}*/
-
-/*.container {*/
-/*  !*position: relative;*!*/
-/*  top: 50%;*/
-/*  left: 50%;*/
-/*  transform: translate(-50%, -50%);*/
-/*}*/
-
+<style scoped>
 .movable {
   /*display: block;*/
   text-align: center;
@@ -393,14 +398,6 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
 }
-
-.movable div {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
 
 .boldFont {
   font-weight: bold;

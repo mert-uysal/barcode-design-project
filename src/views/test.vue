@@ -44,12 +44,28 @@
                 <span v-bind:class="{boldFont: !label.isLabelNormal, normalFont: label.isLabelNormal}">
                   {{ label.labelName }}<br>{{ label.labelContent }}
                 </span>
-                W : {{ label.labelWidth }} - H : {{ label.labelHeight }}<br>
-                X : {{ label.labelX }} - Y : {{ label.labelY }}
-                <a href="#" class="action-button text-danger position-absolute bottom-0 start-0"
-                   @click.prevent="deleteLabel(labelIndex)">
-                  <span class="fa fa-trash"></span>
-                </a>
+                <div class="container position-absolute bottom-0">
+                  <div class="row">
+                    <div class="col">
+                      <a href="#" class="action-button text-danger position-absolute start-0"
+                         @click.prevent="deleteLabel(labelIndex)">
+                        <i class="fa fa-trash"></i>
+                      </a>
+                    </div>
+                    <div class="col">
+                      <a class="btn-outline-secondary" href="#"  @click="changeFont(labelIndex)"
+                         v-bind:class="{active: !label.isLabelNormal}">
+                        <i class="fas fa-bold"></i>
+                      </a>
+                    </div>
+                    <div class="col">
+                      <a href="#" class="action-button position-absolute end-0"
+                         @click="rotate(labelIndex)">
+                        <i class="fas fa-redo"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
               </div>
             </VueDragResize>
             <!--            <VueResizable v-for="(label, labelIndex) in labels" :key="label.labelId"-->
@@ -161,7 +177,7 @@ export default {
       sayfaGenisligi: 500,
       sayfaYuksekligi: 500,
 
-      dijitType: "",
+      dijitType: "Barcode",
       dijitXPozisyonu: 0,
       dijitYPozisyonu: 0,
       dijitYuksekligi: 150,
@@ -189,17 +205,8 @@ export default {
       isBarcode: true,
       isNormal: true,
       isVertical90: true,
-      isVertical270: true,
+      isVertical270: false,
     };
-  },
-  watch: {
-    watchSelectedDigitType() {
-      if (this.isBarcode) {
-        this.dijitType = "Barcode";
-      } else {
-        this.dijitType = "QRCode";
-      }
-    }
   },
   methods: {
     pageResize(newPos) {
@@ -208,6 +215,11 @@ export default {
     },
     changeDigitType() {
       this.isBarcode = !this.isBarcode;
+      if (this.isBarcode) {
+        this.dijitType = "Barcode";
+      } else {
+        this.dijitType = "QRCode";
+      }
     },
     dijitDragResize(newPos) {
       this.dijitYuksekligi = newPos.height;
@@ -273,11 +285,33 @@ export default {
         isLabelNormal: this.isNormal,
         isLabelVertical90: this.isVertical90,
         isLabelVertical270: this.isVertical270,
+        labelRotateCounter: 0,
       });
       this.labelId += 1;
     },
     deleteLabel(labelIndex) {
       this.labels.splice(labelIndex, 1);
+    },
+    changeFont(labelIndex) {
+      this.labels[labelIndex].isLabelNormal = !this.labels[labelIndex].isLabelNormal;
+    },
+    rotate(labelIndex) {
+      if (this.labels[labelIndex].labelRotateCounter === 0) { // horizontal
+        this.labels[labelIndex].isLabelVertical90 = false;
+        this.labels[labelIndex].isLabelVertical270 = false;
+        this.labels[labelIndex].labelYatayOrDikey = "Y";
+        this.labels[labelIndex].labelRotateCounter += 1;
+      } else if (this.labels[labelIndex].labelRotateCounter === 1) { //90
+        this.labels[labelIndex].isLabelVertical90 = true;
+        this.labels[labelIndex].isLabelVertical270 = false;
+        this.labels[labelIndex].labelYatayOrDikey = "D";
+        this.labels[labelIndex].labelRotateCounter += 1;
+      } else { //270
+        this.labels[labelIndex].isLabelVertical90 = false;
+        this.labels[labelIndex].isLabelVertical270 = true;
+        this.labels[labelIndex].labelYatayOrDikey = "D";
+        this.labels[labelIndex].labelRotateCounter = 0;
+      }
     },
 
     createText() {

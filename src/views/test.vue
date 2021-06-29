@@ -38,7 +38,7 @@
                            v-on:dragging="labelDragResizeStart(label.labelId)"
                            v-on:dragstop="labelDragResizeOnMove"
                            :isActive="true">
-              <div class="position-relative"
+              <div class="position-relative draggable"
                    style="border: 1px solid #e00d0d;"
                    v-bind:style="{width: label.labelWidth + 'px', height: label.labelHeight + 'px'}">
                 <span v-bind:class="{boldFont: !label.isLabelNormal, normalFont: label.isLabelNormal}">
